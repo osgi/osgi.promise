@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.osgi</groupId>
+		<artifactId>osgi.promise.reactor</artifactId>
+		<version>${revision}</version>
+	</parent>
+	<artifactId>osgi.promise</artifactId>
+	<name>OSGi Promise</name>
+
+	<properties>
+		<api.sources>${project.build.directory}/sources</api.sources>
+	</properties>
+
+		<!-- The jar carries the classes of the API artifacts listed below, unchanged.
+	     They are unpacked, not declared as dependencies: the published pom of
+	     osgi.promise has osgi.annotation as its only dependency. -->
+	<dependencies>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>osgi.annotation</artifactId>
+			<version>${osgi.annotation.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<!-- no sources of its own: sources-jar packages the
+					     unpacked sources instead -->
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<configuration>
+						<skipSource>true</skipSource>
+					</configuration>
+				</plugin>
+				<plugin>
+					<!-- as the javadoc of osgi.promise in the monorepo
+					     (cnf/gradle/companion.gradle) -->
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<configuration>
+						<sourcepath>${api.sources}</sourcepath>
+						<doctitle>OSGi&amp;reg; Promise Release ${parsedVersion.majorVersion}</doctitle>
+						<windowtitle>OSGi Promise Release ${parsedVersion.majorVersion}</windowtitle>
+						<header>&lt;b&gt;OSGi&amp;reg; Promise&lt;/b&gt;&lt;br/&gt;Release ${parsedVersion.majorVersion}</header>
+						<bottom>Copyright &amp;copy; Contributors to the Eclipse Foundation Licensed under the &lt;a href="https://www.eclipse.org/legal/efsl.php" target="_blank"&gt;Eclipse Foundation Specification License – v1.0&lt;/a&gt;</bottom>
+						<show>protected</show>
+						<author>false</author>
+						<version>false</version>
+						<use>true</use>
+						<splitindex>true</splitindex>
+						<notimestamp>true</notimestamp>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.11.0</version>
+				<executions>
+					<execution>
+						<id>unpack-api</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.outputDirectory}</outputDirectory>
+							<includes>org/**</includes>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.osgi</groupId>
+									<artifactId>org.osgi.util.function</artifactId>
+									<version>${org.osgi.util.function.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.osgi</groupId>
+									<artifactId>org.osgi.util.promise</artifactId>
+									<version>${org.osgi.util.promise.version}</version>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+					<execution>
+						<!-- the sources of the same artifacts, for the sources
+						     and javadoc jars; they are not compiled -->
+						<id>unpack-api-sources</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${api.sources}</outputDirectory>
+							<includes>org/**</includes>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.osgi</groupId>
+									<artifactId>org.osgi.util.function</artifactId>
+									<version>${org.osgi.util.function.version}</version>
+									<classifier>sources</classifier>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.osgi</groupId>
+									<artifactId>org.osgi.util.promise</artifactId>
+									<version>${org.osgi.util.promise.version}</version>
+									<classifier>sources</classifier>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>${maven.jar.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>sources-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<classifier>sources</classifier>
+							<classesDirectory>${api.sources}</classesDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-baseline-maven-plugin</artifactId>
+				<configuration>
+					<!-- against the last release of osgi.promise, which this
+					     version rebuilds -->
+					<base>
+						<version>[8.1.0]</version>
+					</base>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

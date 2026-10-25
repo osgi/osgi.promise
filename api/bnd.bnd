@@ -1,0 +1,12 @@
+# The packages of the unpacked API artifacts, one line per artifact as in
+# the monorepo (<project>.*); their versions come from the package-info
+# classes.
+Export-Package: \
+	org.osgi.util.function.*,\
+	org.osgi.util.promise.*;-split-package:=first
+Bundle-Description: OSGi Promise API Release ${parsedVersion.majorVersion} for use inside and outside of OSGi environments
+
+# As the monorepo build of osgi.promise: no imports of java.* packages, and the
+# osgi.ee requirement names the smallest compact profile.
+-noimportjava: true
+-eeprofile: auto
